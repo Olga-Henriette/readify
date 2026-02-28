@@ -15,6 +15,7 @@ import { AddBookDialog } from "@/components/books/add-book-dialog";
 import { BookSearch } from "@/components/books/book-search";
 import { DeleteBookButton } from "@/components/books/delete-book-button";
 import { BorrowButton } from "@/components/books/borrow-button";
+import { ReserveButton } from "@/components/books/reserve-button";
 
 interface PageProps {
   searchParams: Promise<{ query?: string }>;
@@ -84,7 +85,11 @@ export default async function BooksPage({ searchParams }: PageProps) {
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
-                      <BorrowButton bookId={book.id} stock={book.availableStock} />
+                      {book.availableStock > 0 ? (
+                        <BorrowButton bookId={book.id} stock={book.availableStock} />
+                      ) : (
+                        <ReserveButton bookId={book.id} />
+                      )}
                       <Button variant="outline" size="sm" className="h-8">Modifier</Button>
                       <DeleteBookButton bookId={book.id} bookTitle={book.title} />
                     </div>

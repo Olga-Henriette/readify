@@ -47,4 +47,7 @@ export async function returnBook(borrowingId: string) {
     revalidatePath("/dashboard/admin/loans");
     return { success: true, penaltyDays };
   });
+  revalidatePath("/dashboard/admin/loans");
+  revalidatePath("/dashboard/my-loans");
+  revalidatePath("/dashboard/books");
 }

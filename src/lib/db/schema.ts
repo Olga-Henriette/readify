@@ -1,6 +1,17 @@
 import { pgTable, text, timestamp, uuid, integer, pgEnum, boolean } from "drizzle-orm/pg-core";
 
 export const roleEnum = pgEnum("role", ["ADMIN", "LIBRARIAN", "MEMBER"]);
+export const reservationStatusEnum = pgEnum("reservation_status", ["PENDING", "READY", "CANCELLED", "COMPLETED"]);
+
+export const reservations = pgTable("reservations", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: text("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
+  bookId: uuid("book_id").references(() => books.id, { onDelete: "cascade" }).notNull(),
+  reservedAt: timestamp("reserved_at").defaultNow().notNull(), // Pour la priorité (FIFO)
+  availableAt: timestamp("available_at"), // Calculé selon le retour du livre
+  expiresAt: timestamp("expires_at"), // Date limite pour venir chercher le livre
+  status: text("status").default("PENDING").notNull(), 
+});
 
 // Table Users étendue pour l'Auth professionnelle
 export const users = pgTable("user", {
@@ -14,6 +25,8 @@ export const users = pgTable("user", {
   updatedAt: timestamp("updated_at").notNull(),
   suspendedUntil: timestamp("suspended_until"), // Date jusqu'à laquelle l'user est banni
   fineBalance: integer("fine_balance").default(0).notNull(), // Amende en centimes (ex: 500 = 5.00€)
+  cancellationCount: integer("cancellation_count").default(0).notNull(),
+  bannedFromReservingUntil: timestamp("banned_reserving_until"),
 });
 
 // Tables requises par Better-Auth pour la gestion des sessions
