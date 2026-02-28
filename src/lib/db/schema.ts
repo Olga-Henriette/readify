@@ -12,6 +12,8 @@ export const users = pgTable("user", {
   role: text("role").default("MEMBER").notNull(),
   createdAt: timestamp("created_at").notNull(),
   updatedAt: timestamp("updated_at").notNull(),
+  suspendedUntil: timestamp("suspended_until"), // Date jusqu'à laquelle l'user est banni
+  fineBalance: integer("fine_balance").default(0).notNull(), // Amende en centimes (ex: 500 = 5.00€)
 });
 
 // Tables requises par Better-Auth pour la gestion des sessions

@@ -20,7 +20,7 @@ export function BorrowButton({ bookId, stock }: { bookId: string; stock: number 
     if (result.success) {
       toast.success("Livre emprunté avec succès !");
     } else {
-      toast.error(result.error);
+      toast.error("error" in result ? result.error : "Une erreur est survenue");
     }
     setLoading(false);
   }
