@@ -13,6 +13,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { AddBookDialog } from "@/components/books/add-book-dialog";
 import { BookSearch } from "@/components/books/book-search";
+import { DeleteBookButton } from "@/components/books/delete-book-button";
 
 interface PageProps {
   searchParams: Promise<{ query?: string }>;
@@ -84,6 +85,12 @@ export default async function BooksPage({ searchParams }: PageProps) {
                     <Button variant="outline" size="sm" className="h-8 border-slate-200">
                       Modifier
                     </Button>
+                  </TableCell>
+                  <TableCell className="text-right flex justify-end gap-2">
+                  <Button variant="outline" size="sm" className="h-8">
+                      Modifier
+                    </Button>
+                    <DeleteBookButton bookId={book.id} bookTitle={book.title} />
                   </TableCell>
                 </TableRow>
               ))

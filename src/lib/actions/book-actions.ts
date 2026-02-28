@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { books } from "@/lib/db/schema";
 import { bookSchema, BookFormValues } from "@/lib/validations/book";
 import { revalidatePath } from "next/cache";
+import { eq } from "drizzle-orm";
 
 export async function createBook(values: BookFormValues) {
   // 1. Validation de sécurité côté serveur
@@ -20,5 +21,10 @@ export async function createBook(values: BookFormValues) {
   });
 
   // 3. Rafraîchir les données du catalogue sans recharger la page
+  revalidatePath("/dashboard/books");
+}
+
+export async function deleteBook(id: string) {
+  await db.delete(books).where(eq(books.id, id));
   revalidatePath("/dashboard/books");
 }
