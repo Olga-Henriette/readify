@@ -14,6 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { AddBookDialog } from "@/components/books/add-book-dialog";
 import { BookSearch } from "@/components/books/book-search";
 import { DeleteBookButton } from "@/components/books/delete-book-button";
+import { BorrowButton } from "@/components/books/borrow-button";
 
 interface PageProps {
   searchParams: Promise<{ query?: string }>;
@@ -56,7 +57,7 @@ export default async function BooksPage({ searchParams }: PageProps) {
               <TableHead className="font-semibold">Livre</TableHead>
               <TableHead className="font-semibold">Auteur</TableHead>
               <TableHead className="font-semibold">ISBN</TableHead>
-              <TableHead className="font-semibold text-center">Disponibilité</TableHead>
+              <TableHead className="font-semibold text-center">État Stock</TableHead>
               <TableHead className="text-right font-semibold">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -64,7 +65,7 @@ export default async function BooksPage({ searchParams }: PageProps) {
             {allBooks.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={5} className="text-center py-20 text-muted-foreground italic">
-                  Aucun ouvrage trouvé pour cette recherche.
+                  Aucun ouvrage trouvé.
                 </TableCell>
               </TableRow>
             ) : (
@@ -75,22 +76,18 @@ export default async function BooksPage({ searchParams }: PageProps) {
                   <TableCell className="font-mono text-[11px] text-slate-400">{book.isbn}</TableCell>
                   <TableCell className="text-center">
                     <Badge 
-                      variant={book.stock > 0 ? "secondary" : "destructive"}
-                      className={book.stock > 0 ? "bg-emerald-50 text-emerald-700 border-emerald-200" : ""}
+                      variant={book.availableStock > 0 ? "secondary" : "destructive"}
+                      className={book.availableStock > 0 ? "bg-emerald-50 text-emerald-700 border-emerald-200" : ""}
                     >
-                      {book.stock} en stock
+                      {book.availableStock} / {book.stock} dispo
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right">
-                    <Button variant="outline" size="sm" className="h-8 border-slate-200">
-                      Modifier
-                    </Button>
-                  </TableCell>
-                  <TableCell className="text-right flex justify-end gap-2">
-                  <Button variant="outline" size="sm" className="h-8">
-                      Modifier
-                    </Button>
-                    <DeleteBookButton bookId={book.id} bookTitle={book.title} />
+                    <div className="flex justify-end gap-2">
+                      <BorrowButton bookId={book.id} stock={book.availableStock} />
+                      <Button variant="outline" size="sm" className="h-8">Modifier</Button>
+                      <DeleteBookButton bookId={book.id} bookTitle={book.title} />
+                    </div>
                   </TableCell>
                 </TableRow>
               ))
