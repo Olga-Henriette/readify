@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { authClient } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
@@ -66,6 +67,12 @@ export default function LoginPage() {
                         <Button className="w-full font-semibold" type="submit" disabled={loading}>
                             {loading ? "Connexion en cours..." : "Se connecter"}
                         </Button>
+                        <p className="text-center text-sm text-muted-foreground mt-4">
+                            Pas encore de compte ?{" "}
+                            <Link href="/register" className="text-emerald-600 hover:underline font-medium">
+                                Créer un compte
+                            </Link>
+                        </p>
                     </form>
                 </CardContent>
             </Card>

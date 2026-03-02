@@ -16,6 +16,9 @@ import { BookSearch } from "@/components/books/book-search";
 import { DeleteBookButton } from "@/components/books/delete-book-button";
 import { BorrowButton } from "@/components/books/borrow-button";
 import { ReserveButton } from "@/components/books/reserve-button";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
+import { EditBookDialog } from "@/components/books/edit-book-dialog";
 
 interface PageProps {
   searchParams: Promise<{ query?: string }>;
@@ -23,7 +26,9 @@ interface PageProps {
 
 export default async function BooksPage({ searchParams }: PageProps) {
   const query = (await searchParams).query;
-
+  const session = await auth.api.getSession({ headers: await headers() });
+  const isAdmin = session?.user.role === "ADMIN" || session?.user.role === "LIBRARIAN";
+  
   // Filtrage SQL 
   const allBooks = await db
     .select()
@@ -47,7 +52,7 @@ export default async function BooksPage({ searchParams }: PageProps) {
         </div>
         <div className="flex items-center gap-3">
           <BookSearch />
-          <AddBookDialog />
+          {isAdmin && <AddBookDialog />}
         </div>
       </div>
 
@@ -90,8 +95,13 @@ export default async function BooksPage({ searchParams }: PageProps) {
                       ) : (
                         <ReserveButton bookId={book.id} />
                       )}
-                      <Button variant="outline" size="sm" className="h-8">Modifier</Button>
-                      <DeleteBookButton bookId={book.id} bookTitle={book.title} />
+                      
+                      {isAdmin && (
+                        <>
+                          <EditBookDialog book={book} />
+                          <DeleteBookButton bookId={book.id} bookTitle={book.title} />
+                        </>
+                      )}
                     </div>
                   </TableCell>
                 </TableRow>

@@ -1,4 +1,6 @@
 import { pgTable, text, timestamp, uuid, integer, pgEnum, boolean } from "drizzle-orm/pg-core";
+import { index, check } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm/sql/sql";
 
 export const roleEnum = pgEnum("role", ["ADMIN", "LIBRARIAN", "MEMBER"]);
 export const reservationStatusEnum = pgEnum("reservation_status", ["PENDING", "READY", "CANCELLED", "COMPLETED"]);
@@ -75,7 +77,10 @@ export const books = pgTable("books", {
   stock: integer("stock").default(0).notNull(),
   availableStock: integer("available_stock").default(0).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
-});
+}, (table) => ({
+  isbnIdx: index("isbn_idx").on(table.isbn), 
+  stockCheck: sql`CHECK (available_stock >= 0 AND available_stock <= stock)`, 
+}));
 
 export const borrowings = pgTable("borrowings", {
   id: uuid("id").primaryKey().defaultRandom(),

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { authClient } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
@@ -79,6 +80,12 @@ export default function RegisterPage() {
                         <Button className="w-full font-semibold" type="submit" disabled={loading}>
                             {loading ? "Chargement..." : "S'inscrire"}
                         </Button>
+                        <p className="text-center text-sm text-muted-foreground mt-4">
+                            Déjà membre ?{" "}
+                            <Link href="/login" className="text-emerald-600 hover:underline font-medium">
+                                Se connecter
+                            </Link>
+                        </p>
                     </form>
                 </CardContent>
             </Card>

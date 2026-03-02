@@ -28,3 +28,16 @@ export async function deleteBook(id: string) {
   await db.delete(books).where(eq(books.id, id));
   revalidatePath("/dashboard/books");
 }
+
+export async function updateBook(id: string, values: BookFormValues) {
+  const validatedFields = bookSchema.safeParse(values);
+  if (!validatedFields.success) throw new Error("Données invalides");
+
+  await db.update(books)
+    .set({
+      ...validatedFields.data,
+    })
+    .where(eq(books.id, id));
+
+  revalidatePath("/dashboard/books");
+}
