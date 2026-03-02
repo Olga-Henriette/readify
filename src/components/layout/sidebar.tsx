@@ -20,18 +20,19 @@ export function Sidebar() {
   const role = user?.role || "MEMBER";
 
   const routes = [
-    { label: "Dashboard", icon: LayoutDashboard, href: "/dashboard", roles: ["ADMIN", "LIBRARIAN", "MEMBER"] },
-    { label: "Catalogue", icon: Book, href: "/dashboard/books", roles: ["ADMIN", "LIBRARIAN", "MEMBER"] },
+    { label: "Dashboard", icon: LayoutDashboard, href: "/dashboard", roles: ["ADMIN", "MEMBER"] },
+    { label: "Catalogue", icon: Book, href: "/dashboard/books", roles: ["ADMIN", "MEMBER"] },
     { label: "Mes Emprunts", icon: History, href: "/dashboard/my-loans", roles: ["MEMBER"] },
-    { label: "Gestion Retours", icon: Settings, href: "/dashboard/admin/loans", roles: ["ADMIN", "LIBRARIAN"] },
     { label: "Utilisateurs", icon: Users, href: "/dashboard/admin/users", roles: ["ADMIN"] },
-    { label: "Profil", icon: User, href: "/dashboard/profile", roles: ["ADMIN", "LIBRARIAN", "MEMBER"] },
+    { label: "Profil", icon: User, href: "/dashboard/profile", roles: ["MEMBER"] }, 
+    { label: "Gestion Réservations", icon: Settings, href: "/dashboard/admin/reservations", roles: ["ADMIN"] },
+    { label: "Mes Réservations", icon: History, href: "/dashboard/my-reservations", roles: ["MEMBER"] },
   ];
 
   return (
     <div className={cn(
       "relative flex flex-col border-r bg-white h-screen transition-all duration-300 shadow-sm",
-      isCollapsed ? "w-[80px]" : "w-64"
+      isCollapsed ? "w-20" : "w-64"
     )}>
       {/* Bouton pour plier/déplier */}
       <Button

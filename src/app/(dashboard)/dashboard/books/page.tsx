@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
 import { books } from "@/lib/db/schema";
-import { ilike, or } from "drizzle-orm"; 
+import { ilike, or, count } from "drizzle-orm";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -28,7 +28,8 @@ export default async function BooksPage({ searchParams }: PageProps) {
   const query = (await searchParams).query;
   const session = await auth.api.getSession({ headers: await headers() });
   const isAdmin = session?.user.role === "ADMIN" || session?.user.role === "LIBRARIAN";
-  
+  const [booksCount] = await db.select({ value: count() }).from(books);
+
   // Filtrage SQL 
   const allBooks = await db
     .select()
@@ -48,7 +49,9 @@ export default async function BooksPage({ searchParams }: PageProps) {
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-slate-900">Catalogue</h1>
-          <p className="text-muted-foreground text-sm">Gérez les ouvrages de votre bibliothèque.</p>
+          <p className="text-muted-foreground text-sm">
+            {booksCount.value} ouvrages au total dans la bibliothèque.
+          </p> 
         </div>
         <div className="flex items-center gap-3">
           <BookSearch />
@@ -90,10 +93,14 @@ export default async function BooksPage({ searchParams }: PageProps) {
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
-                      {book.availableStock > 0 ? (
-                        <BorrowButton bookId={book.id} stock={book.availableStock} />
-                      ) : (
-                        <ReserveButton bookId={book.id} />
+                      {!isAdmin && (
+                        <>
+                          {book.availableStock > 0 ? (
+                            <BorrowButton bookId={book.id} stock={book.availableStock} />
+                          ) : (
+                            <ReserveButton bookId={book.id} />
+                          )}
+                        </>
                       )}
                       
                       {isAdmin && (

@@ -13,9 +13,10 @@ export const reservations = pgTable("reservations", {
   availableAt: timestamp("available_at"), // Calculé selon le retour du livre
   expiresAt: timestamp("expires_at"), // Date limite pour venir chercher le livre
   status: text("status").default("PENDING").notNull(), 
-});
+}, (table) => ({
+  priorityIdx: index("priority_idx").on(table.bookId, table.reservedAt), // pour la file d'attente
+}));
 
-// Table Users étendue pour l'Auth professionnelle
 export const users = pgTable("user", {
   id: text("id").primaryKey(), // Better-auth utilise des string IDs par défaut
   name: text("name").notNull(),
@@ -25,13 +26,12 @@ export const users = pgTable("user", {
   role: text("role").default("MEMBER").notNull(),
   createdAt: timestamp("created_at").notNull(),
   updatedAt: timestamp("updated_at").notNull(),
-  suspendedUntil: timestamp("suspended_until"), // Date jusqu'à laquelle l'user est banni
+  suspendedUntil: timestamp("suspended_until"), 
   fineBalance: integer("fine_balance").default(0).notNull(), // Amende en centimes (ex: 500 = 5.00€)
   cancellationCount: integer("cancellation_count").default(0).notNull(),
   bannedFromReservingUntil: timestamp("banned_reserving_until"),
 });
 
-// Tables requises par Better-Auth pour la gestion des sessions
 export const sessions = pgTable("session", {
     id: text("id").primaryKey(),
     expiresAt: timestamp("expires_at").notNull(),
@@ -68,7 +68,6 @@ export const verifications = pgTable("verification", {
     updatedAt: timestamp("updated_at"),
 });
 
-// Vos tables métier (Livres et Emprunts)
 export const books = pgTable("books", {
   id: uuid("id").primaryKey().defaultRandom(),
   title: text("title").notNull(),

@@ -7,6 +7,35 @@ import { revalidatePath } from "next/cache";
 
 export async function reserveBook(bookId: string, userId: string) {
   return await db.transaction(async (tx) => {
+    const existingSameBook = await tx
+      .select()
+      .from(reservations)
+      .where(
+        and(
+          eq(reservations.userId, userId),
+          eq(reservations.bookId, bookId),
+          eq(reservations.status, "PENDING")
+        )
+      );
+
+    if (existingSameBook.length > 0) {
+      throw new Error("Vous avez déjà une réservation en attente pour cet ouvrage.");
+    }
+
+    const activeResCount = await tx
+      .select({ value: count() })
+      .from(reservations)
+      .where(
+        and(
+          eq(reservations.userId, userId),
+          eq(reservations.status, "PENDING")
+        )
+      );
+
+    if (activeResCount[0].value >= 2) {
+      throw new Error("Limite atteinte : Vous ne pouvez pas avoir plus de 2 réservations simultanées.");
+    }
+
     // --- L'utilisateur a-t-il déjà ce livre en main ? ---
     const existingLoan = await tx
       .select()
@@ -51,11 +80,21 @@ export async function reserveBook(bookId: string, userId: string) {
       bookId,
       userId,
       availableAt: availableDate,
-      // La réservation expire 48h après la date de disponibilité 
       expiresAt: new Date(availableDate.getTime() + 2 * 24 * 60 * 60 * 1000),
+      status: "PENDING"
     });
 
+    revalidatePath("/dashboard/my-reservations");
     revalidatePath("/dashboard/books");
     return { success: true };
   });
+}
+
+export async function cancelReservation(reservationId: string) {
+  await db.update(reservations)
+    .set({ status: "CANCELLED" })
+    .where(eq(reservations.id, reservationId));
+
+  revalidatePath("/dashboard/my-reservations");
+  return { success: true };
 }

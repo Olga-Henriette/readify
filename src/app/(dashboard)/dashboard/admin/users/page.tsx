@@ -7,12 +7,13 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export default async function AdminUsersPage() {
   const allUsers = await db.select().from(users).orderBy(desc(users.createdAt));
+  const totalUsers = allUsers.length;
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Membres de la bibliothèque</h1>
-        <p className="text-muted-foreground">Surveillez l'activité et la réputation des utilisateurs.</p>
+        <h1 className="text-3xl font-bold tracking-tight">Membres ({totalUsers})</h1>
+        <p className="text-muted-foreground">Gestion de la base des adhérents.</p>
       </div>
 
       <div className="border rounded-xl bg-white shadow-sm">
