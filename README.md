@@ -1,36 +1,42 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Readify - Système de Gestion de Bibliothèque Intelligente
 
-## Getting Started
+Readify est une application web moderne (Next.js 15) permettant de gérer une bibliothèque physique. Elle distingue les rôles **Admin** (gestion du stock, financier, décisionnel) et **Membre** (emprunts, réservations, tendances).
 
-First, run the development server:
+## Installation & Lancement
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+1. **Cloner le projet**
+2. **Installer les dépendances** : `pnpm install`
+3. **Variables d'environnement** : Créer un `.env` avec :
+   - `DATABASE_URL` (Postgres/Neon)
+   - `BETTER_AUTH_SECRET`
+   - `NEXT_PUBLIC_APP_URL=http://localhost:3000`
+4. **Synchroniser la DB** : `npx drizzle-kit push`
+5. **Lancer** : `pnpm dev`
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Fonctionnalités Clés
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Pour les Membres
+- **Catalogue Dynamique** : Recherche par titre, auteur ou ISBN.
+- **Système d'Emprunt** : Emprunt immédiat si le stock est disponible.
+- **Réservations FIFO** : Si le stock est à 0, le membre peut réserver.
+  - *Règle métier* : Maximum 2 réservations actives par membre.
+  - *Annulation* : Possibilité d'annuler manuellement sa réservation.
+- **Tableau de Bord** : Affichage des livres "Tendances" (les plus empruntés du mois).
 
-## Learn More
+### Pour les Administrateurs
+- **CRUD Catalogue** : Ajout, modification et suppression sécurisée des ouvrages.
+- **Aide à la Décision** : 
+  - Historique complet des rotations pour chaque livre (qui l'a eu, quand, est-ce rendu ?).
+  - Statistiques des lecteurs les plus actifs.
+  - Suivi financier des amendes impayées.
+- **Gestion des Usagers** : Visualisation du taux d'annulation et suspension automatique.
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Architecture Technique
+- **Framework** : Next.js 15 (App Router)
+- **Base de données** : PostgreSQL via Drizzle ORM
+- **Authentification** : Better-Auth (Rôles RBAC)
+- **UI Components** : Shadcn/UI & Tailwind CSS
