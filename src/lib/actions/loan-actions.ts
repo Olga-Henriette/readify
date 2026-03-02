@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { books, borrowings } from "@/lib/db/schema";
+import { books, borrowings, users } from "@/lib/db/schema";
 import { eq, and, isNull, lt, count } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
@@ -72,4 +72,35 @@ export async function borrowBook(bookId: string, userId: string) {
   } catch (error) {
     return { success: false, error: (error as Error).message };
   }
+}
+
+export async function returnBook(borrowingId: string) {
+  return await db.transaction(async (tx) => {
+    // 1. Récupérer l'emprunt
+    const [loan] = await tx.select().from(borrowings).where(eq(borrowings.id, borrowingId)).limit(1);
+    if (!loan) throw new Error("Emprunt introuvable");
+
+    // 2. Marquer comme rendu
+    await tx.update(borrowings)
+      .set({ returnedAt: new Date() })
+      .where(eq(borrowings.id, borrowingId));
+
+    // 3. Remettre le livre en stock
+    const [book] = await tx.select().from(books).where(eq(books.id, loan.bookId)).limit(1);
+    await tx.update(books)
+      .set({ availableStock: book.availableStock + 1 })
+      .where(eq(books.id, loan.bookId));
+
+    // 4. Remise à zéro de l'utilisateur 
+    await tx.update(users)
+      .set({ 
+        fineBalance: 0, 
+        suspendedUntil: null 
+      })
+      .where(eq(users.id, loan.userId));
+
+    revalidatePath("/dashboard/admin/loans");
+    revalidatePath("/dashboard/admin/users");
+    return { success: true };
+  });
 }

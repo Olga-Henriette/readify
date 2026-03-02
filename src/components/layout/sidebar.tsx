@@ -7,7 +7,8 @@ import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 import { 
   Book, LayoutDashboard, History, User, Settings, 
-  Users, ChevronLeft, ChevronRight, LibraryBig 
+  Users, ChevronLeft, ChevronRight, LibraryBig,
+  CalendarClock, BookmarkCheck
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -23,10 +24,11 @@ export function Sidebar() {
     { label: "Dashboard", icon: LayoutDashboard, href: "/dashboard", roles: ["ADMIN", "MEMBER"] },
     { label: "Catalogue", icon: Book, href: "/dashboard/books", roles: ["ADMIN", "MEMBER"] },
     { label: "Mes Emprunts", icon: History, href: "/dashboard/my-loans", roles: ["MEMBER"] },
+    { label: "Gestion Retours", icon: Settings, href: "/dashboard/admin/loans", roles: ["ADMIN"] }, // AJOUTÉ
     { label: "Utilisateurs", icon: Users, href: "/dashboard/admin/users", roles: ["ADMIN"] },
+    { label: "Gestion Réservations", icon: CalendarClock, href: "/dashboard/admin/reservations", roles: ["ADMIN"] },
+    { label: "Mes Réservations", icon: BookmarkCheck, href: "/dashboard/my-reservations", roles: ["MEMBER"] },
     { label: "Profil", icon: User, href: "/dashboard/profile", roles: ["MEMBER"] }, 
-    { label: "Gestion Réservations", icon: Settings, href: "/dashboard/admin/reservations", roles: ["ADMIN"] },
-    { label: "Mes Réservations", icon: History, href: "/dashboard/my-reservations", roles: ["MEMBER"] },
   ];
 
   return (

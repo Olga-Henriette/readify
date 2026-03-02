@@ -15,7 +15,7 @@ export default async function AdminLoansPage() {
 
   // Sécurité : Si pas connecté ou si le rôle n'est pas ADMIN ou LIBRARIAN -> Redirection
   if (!session || (session.user.role !== "ADMIN" && session.user.role !== "LIBRARIAN")) {
-    redirect("/dashboard"); // On renvoie vers le dashboard classique
+    redirect("/dashboard"); 
   }
   
   const activeLoans = await db
@@ -49,6 +49,14 @@ export default async function AdminLoansPage() {
           <TableBody>
             {activeLoans.map((loan) => {
               const isOverdue = new Date() > new Date(loan.dueDate);
+
+              // Calcul de l'amende spécifique à cet emprunt si retard
+              let currentLoanFine = 0;
+              if (isOverdue) {
+                const diffDays = Math.ceil(Math.abs(new Date().getTime() - new Date(loan.dueDate).getTime()) / (1000 * 60 * 60 * 24));
+                currentLoanFine = diffDays; // en Euros
+              }
+
               return (
                 <TableRow key={loan.id} className={isOverdue ? "bg-red-50/50" : ""}>
                   <TableCell>
@@ -61,7 +69,10 @@ export default async function AdminLoansPage() {
                   <TableCell>{format(new Date(loan.dueDate), "dd/MM/yyyy", { locale: fr })}</TableCell>
                   <TableCell>
                     {isOverdue ? (
-                      <Badge variant="destructive">Retard</Badge>
+                      <div className="flex flex-col gap-1">
+                        <Badge variant="destructive">Retard</Badge>
+                        <span className="text-xs font-bold text-red-600">À payer: {currentLoanFine.toFixed(2)} €</span>
+                      </div>
                     ) : (
                       <Badge variant="secondary">En cours</Badge>
                     )}

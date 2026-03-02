@@ -8,6 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { AlertCircle, CreditCard, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { borrowings } from "@/lib/db/schema";
+import { and, isNull, lt } from "drizzle-orm";
 
 export default async function ProfilePage() {
   const session = await auth.api.getSession({ headers: await headers() });
@@ -15,7 +17,24 @@ export default async function ProfilePage() {
 
   const [user] = await db.select().from(users).where(eq(users.id, session.user.id)).limit(1);
 
-  const isSuspended = user.suspendedUntil && user.suspendedUntil > new Date();
+  // Chercher les emprunts en retard non encore traités par le cron
+  const overdueLoans = await db
+    .select()
+    .from(borrowings)
+    .where(and(
+      eq(borrowings.userId, user.id),
+      isNull(borrowings.returnedAt),
+      lt(borrowings.dueDate, new Date())
+    ));
+
+  // Calcul du solde réel (Base DB + Retards en cours)
+  let liveFine = user.fineBalance;
+  overdueLoans.forEach(loan => {
+    const diffDays = Math.ceil(Math.abs(new Date().getTime() - new Date(loan.dueDate).getTime()) / (1000 * 60 * 60 * 24));
+    liveFine += (diffDays * 100);
+  });
+
+  const isSuspended = (user.suspendedUntil && user.suspendedUntil > new Date()) || overdueLoans.length > 0;
   const isBannedFromReserving = user.bannedFromReservingUntil && user.bannedFromReservingUntil > new Date();
 
   return (
@@ -38,7 +57,7 @@ export default async function ProfilePage() {
             <CreditCard className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{(user.fineBalance / 100).toFixed(2)} €</div>
+            <div className="text-2xl font-bold">{(liveFine/ 100).toFixed(2)} €</div>
             <p className="text-xs text-muted-foreground mt-1">
               {user.fineBalance > 0 
                 ? "Régularisez votre solde pour lever les restrictions." 
