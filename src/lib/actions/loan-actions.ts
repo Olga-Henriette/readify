@@ -8,6 +8,12 @@ import { revalidatePath } from "next/cache";
 export async function borrowBook(bookId: string, userId: string) {
   try {
     return await db.transaction(async (tx) => {
+      // --- VÉRIFICATION SUSPENSION ---
+      const [user] = await tx.select().from(users).where(eq(users.id, userId)).limit(1);
+      if (user?.suspendedUntil && user.suspendedUntil > new Date()) {
+        throw new Error(`COMPTE SUSPENDU : Vous ne pouvez pas emprunter de livre jusqu'au ${user.suspendedUntil.toLocaleDateString()}`);
+      }
+
       // --- 1. VÉRIFICATION DES LIVRES EN RETARD  ---
       const overdueLoans = await tx
         .select()
